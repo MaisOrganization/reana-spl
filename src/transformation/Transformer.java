@@ -156,7 +156,7 @@ public class Transformer {
 	 * @param target: the fDTMC node that the message should go to
 	 * @param error: the error state where message transmission failure should be transited to
 	 * @return the $target itself, the point in the fDTMC where the execution of the message will stop at
-	 */
+	 */fragment
 	private State transformMessage(FDTMC fdtmc, Message msg, State source, State target, State error) {
 		BigDecimal a = new BigDecimal("1.0");
 		BigDecimal b = new BigDecimal(Float.toString(msg.getProb()));
@@ -332,18 +332,18 @@ public class Transformer {
 	 */
 	private State transformParallelFragment(FDTMC fdtmc, Fragment fragment, State source, State target, State error, RDGNode currentRdgNode) throws InvalidNodeClassException, InvalidNumberOfOperandsException, InvalidNodeType {
 		List<Node> operands = fragment.getNodes();
-		String fragName;
+		
 		int n = operands.size(), opNum;
 		float val = 1/(float)n;
 
-		fragName = !fragment.getName().isEmpty() ? fragment.getName() : "Par" + ++parNum;
+		
 		opNum = 0;
 		for(Node node : operands) {
 			if (!node.getClass().equals(Operand.class)) {
 			    throw new InvalidNodeClassException("A Par Fragment can only have Operand objects as Nodes!");
 			}
 			Operand operand = (Operand)node; // to facilitate the nodes use
-			final String opName = fragName + "-Op" + ++opNum;
+			final String opName = fragName(fragment) + "-Op" + ++opNum;
 
 			RDGNode fragmentNode = transformOperand(opName, "true", operand);
 			currentRdgNode.addDependency(fragmentNode);
@@ -362,6 +362,10 @@ public class Transformer {
 
 		}
 		return target;
+	}
+
+	private String fragName(Fragment fragment) {
+		return !fragment.getName().isEmpty() ? fragment.getName() : "Par" + ++parNum;
 	}
 
 	private RDGNode transformOperand (String name, String presenceCondition, Operand operand) throws InvalidNumberOfOperandsException, InvalidNodeClassException, InvalidNodeType {
