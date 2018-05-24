@@ -112,7 +112,13 @@ class ParamModel {
 		}
 		return tmpParameters;
 	}
-
+	
+	private String getStringParser() {
+		return "module " + moduleName + "\n" +
+				"	"+stateVariable+ " : ["+stateRangeStart+".."+stateRangeEnd+"] init "+initialState+";" +
+				"\n";
+	}
+	
 	@Override
 	public String toString() {
 		String params = "";
@@ -124,9 +130,8 @@ class ParamModel {
 				"\n" +
 				params +
 				"\n" +
-				"module " + moduleName + "\n" +
-				"	"+stateVariable+ " : ["+stateRangeStart+".."+stateRangeEnd+"] init "+initialState+";" +
-				"\n";
+				getStringParser();
+		
 		for (Command command : commands.values()) {
 			module += "	"+command.makeString(stateVariable) + "\n";
 		}
