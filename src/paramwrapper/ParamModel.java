@@ -79,19 +79,23 @@ class ParamModel {
 		for (Entry<State, List<Transition>> entry : fdtmc.getTransitions().entrySet()) {
 		    int initState = entry.getKey().getIndex();
 			Command command = new Command(initState);
-			if (entry.getValue() != null) {
-			    for (Transition transition : entry.getValue()) {
-			        command.addUpdate(transition.getProbability(),
-			                          transition.getTarget().getIndex());
-			    }
-			} else {
-			    // Workaround: manually adding self-loops in case no
-			    // transition was specified for a given state.
-			    command.addUpdate("1", initState);
-			}
+			updateCommand(entry, initState, command);
 			tmpCommands.put(initState, command);
 		}
 		return tmpCommands;
+	}
+
+	private void updateCommand(Entry<State, List<Transition>> entry, int initState, Command command) {
+		if (entry.getValue() != null) {
+		    for (Transition transition : entry.getValue()) {
+		        command.addUpdate(transition.getProbability(),
+		                          transition.getTarget().getIndex());
+		    }
+		} else {
+		    // Workaround: manually adding self-loops in case no
+		    // transition was specified for a given state.
+		    command.addUpdate("1", initState);
+		}
 	}
 
 	private Set<String> getParameters(Collection<Command> commands) {
