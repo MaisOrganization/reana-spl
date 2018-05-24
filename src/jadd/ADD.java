@@ -413,17 +413,21 @@ public class ADD {
                             cubePtr,
                             valuePtr);
                 } else {
-                    if (generator != null) {
-                        BigcuddLibrary.Cudd_GenFree(generator);
-                        generator = null;
-                    }
-                    return false;
+                    return dontAdvance();
                 }
             }
 
             action.accept(expandedIterator.next());
             return true;
         }
+
+		private boolean dontAdvance() {
+			if (generator != null) {
+			    BigcuddLibrary.Cudd_GenFree(generator);
+			    generator = null;
+			}
+			return false;
+		}
 
     }
 
