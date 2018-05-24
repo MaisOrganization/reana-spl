@@ -57,10 +57,13 @@ public class FDTMC {
 		temp.setVariableName(variableName);
 		temp.setIndex(index);
 		states.add(temp);
+
 		transitionSystem.put(temp, null);
-		if (index == 0)
+		if (index == 0){
 			initialState = temp;
+		}
 		index++;
+
 		return temp;
 	}
 
@@ -123,15 +126,20 @@ public class FDTMC {
 	        return null;
 	    }
 
-	    List<Transition> l = transitionSystem.get(source);
-		if (l == null) {
-			l = new LinkedList<Transition>();
+	    List<Transition> transistionList = transitionSystem.get(source);
+		if (transistionList == null) {
+			transistionList = new LinkedList<Transition>();
 		}
 
 		Transition newTransition = new Transition(source, target, action, reliability);
-		boolean success = l.add(newTransition);
-		transitionSystem.put(source, l);
-		return success ? newTransition : null;
+		boolean success = transistionList.add(newTransition);
+		transitionSystem.put(source, transistionList);
+		
+		if (success) {
+			return newTransition;
+		}else {
+			return null;
+		}
 	}
 
 	/**
@@ -381,6 +389,7 @@ public class FDTMC {
      * @param statesOldToNew
      */
     private void inlineTransitions(FDTMC fdtmc, Map<State, State> statesOldToNew) {
+    	
         Set<Transition> interfaceTransitions = fdtmc.getInterfaceTransitions();
         for (Map.Entry<State, List<Transition>> entry : fdtmc.getTransitions().entrySet()) {
             List<Transition> transitions = entry.getValue();
@@ -392,6 +401,7 @@ public class FDTMC {
                 }
             }
         }
+        
     }
 
     private Transition inlineTransition(Transition transition, Map<State, State> statesOldToNew) {
