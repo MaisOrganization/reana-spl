@@ -37,8 +37,9 @@ public class ProbabilityEnergyTimeProfileReader {
             org.w3c.dom.Node tmp;
             org.w3c.dom.Node item = nodes.item(k);
             NamedNodeMap kAttrs = item.getAttributes();
-
-            if (kAttrs.getNamedItem("base_NamedElement").getTextContent().equals(nodeId)) {
+            
+            boolean isKAttrs = kAttrs.getNamedItem("base_NamedElement").getTextContent().equals(nodeId);
+            if (isKAttrs) {
                 if (kAttrs.getNamedItem("prob") != null) {
                     profile.setProb(parseTag(kAttrs.getNamedItem("prob").getTextContent(), "prob").floatValue());
                 }
