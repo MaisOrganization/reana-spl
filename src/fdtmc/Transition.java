@@ -61,11 +61,13 @@ public class Transition {
         double prob1 = 0;
         double prob2 = 0;
         boolean isVariable = false;
+        
         try {
             prob1 = Double.parseDouble(p1);
         } catch (NumberFormatException e) {
             isVariable = true;
         }
+ 
         try {
             prob2 = Double.parseDouble(p2);
         } catch (NumberFormatException e) {
@@ -73,6 +75,10 @@ public class Transition {
                 return true;
             }
         }
-        return prob1 == prob2;
+ 
+        boolean areEqualProb = false;
+        areEqualProb = (prob1 == prob2); 
+        
+        return areEqualProb;
     }
 }
