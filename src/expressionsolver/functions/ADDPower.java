@@ -29,17 +29,22 @@ public class ADDPower extends org.nfunk.jep.function.Power {
                 throw new ParseException("Invalid parameter type. Exponent must be constant.");
             }
 
-            double exponentValue = 0;
-            try {
-                exponentValue = ((ADD) exponent).eval(new String[]{});
-            } catch (UnrecognizedVariableException e) {
-                // Unreachable
-            }
+            double exponentValue = getExponentDoubleValue((ADD) exponent);
 
             return nTimes((ADD) base, Math.round(exponentValue));
         }
         throw new ParseException("Invalid parameter type");
     }
+
+	private double getExponentDoubleValue(ADD exponent) {
+		double exponentValue = 0;
+		try {
+		    exponentValue = ((ADD) exponent).eval(new String[]{});
+		} catch (UnrecognizedVariableException e) {
+		    // Unreachable
+		}
+		return exponentValue;
+	}
 
     private ADD nTimes(ADD base, long exponentValue) {
         if (exponentValue == 0) {
