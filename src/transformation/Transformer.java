@@ -214,15 +214,19 @@ public class Transformer {
 		State opEnd = fdtmc.createState("end" + name);
 
 		// TODO Assuming for now that loop/not-loop probability is 50/50.
+		probalityLoop(fdtmc, source, target, opStart, opEnd);
+
+		transformLoopOperand (fdtmc, name, operand, opStart, opEnd, error, currentRdgNode);
+		return target;
+	}
+
+	private void probalityLoop(FDTMC fdtmc, State source, State target, State opStart, State opEnd) {
 		String loopProbability = "0.5";
 
 		fdtmc.createTransition(source, target, "", "1 - " + loopProbability); // not entering loop
 		fdtmc.createTransition(source, opStart, "", loopProbability); // entering loop
 		fdtmc.createTransition(opEnd, opStart, "", loopProbability); // restarting loop
 		fdtmc.createTransition(opEnd, target, "", "1 - " + loopProbability); // leaving loop
-
-		transformLoopOperand (fdtmc, name, operand, opStart, opEnd, error, currentRdgNode);
-		return target;
 	}
 
 	/**
