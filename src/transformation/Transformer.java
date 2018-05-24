@@ -328,7 +328,7 @@ public class Transformer {
 	 */
 	private State transformParallelFragment(FDTMC fdtmc, Fragment fragment, State source, State target, State error, RDGNode currentRdgNode) throws InvalidNodeClassException, InvalidNumberOfOperandsException, InvalidNodeType {
 		List<Node> operands = fragment.getNodes();
-		String fragName, opName;
+		String fragName;
 		int n = operands.size(), opNum;
 		float val = 1/(float)n;
 
@@ -339,21 +339,21 @@ public class Transformer {
 			    throw new InvalidNodeClassException("A Par Fragment can only have Operand objects as Nodes!");
 			}
 			Operand operand = (Operand)node; // to facilitate the nodes use
-			opName = fragName + "-Op" + ++opNum;
+			final String opName = fragName + "-Op" + ++opNum;
 
 			RDGNode fragmentNode = transformOperand(opName, "true", operand);
 			currentRdgNode.addDependency(fragmentNode);
 	        // There is a possibility that we have found an RDG node similar to the
 	        // one we just transformed. In this case, we reuse the older one.
 	        // Thus, the dependency name must be changed accordingly.
-	        opName = fragmentNode.getId();
+			final String oldOpName = fragmentNode.getId();
 
-			State opStart = fdtmc.createState("initial" + opName);
-			State opEnd = fdtmc.createState("end" + opName);
-			State opError = fdtmc.createState("error" + opName);
+			State opStart = fdtmc.createState("initial" + oldOpName);
+			State opEnd = fdtmc.createState("end" + oldOpName);
+			State opError = fdtmc.createState("error" + oldOpName);
 
 			fdtmc.createTransition(source, opStart, "", Float.toString(val)); // entering operand
-			fdtmc.createInterface(opName, opStart, opEnd, opError);
+			fdtmc.createInterface(oldOpName, opStart, opEnd, opError);
 			fdtmc.createTransition(opEnd, target, "", "1.0"); // leaving operand
 
 		}
