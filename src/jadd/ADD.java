@@ -273,12 +273,15 @@ public class ADD {
             return false;
         }
         ADD other = (ADD) obj;
-        return this.function.equals(other.function)
-                || (BigcuddLibrary.Cudd_EqualSupNorm(dd,
-                                                     this.function,
-                                                     other.function,
-                                                     ADD.FLOATING_POINT_PRECISION,
-                                                     1) == 1);
+        boolean functionExists = this.function.equals(other.function);
+        boolean functionExistsWithPrecision = (BigcuddLibrary.Cudd_EqualSupNorm(dd,
+                this.function,
+                other.function,
+                ADD.FLOATING_POINT_PRECISION,
+                1) == 1);
+        
+        return functionExists
+                || functionExistsWithPrecision;
     }
 
     public int getDeadNodesCount() {
