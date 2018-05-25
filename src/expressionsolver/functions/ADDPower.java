@@ -23,25 +23,26 @@ public class ADDPower extends org.nfunk.jep.function.Power {
      * @see org.nfunk.jep.function.Power#power(java.lang.Object, java.lang.Object)
      */
     @Override
-    public Object power(Object arg1, Object arg2) throws ParseException {
-        if (arg1 instanceof ADD && arg2 instanceof ADD) {
-            ADD base = (ADD)arg1;
-            ADD exponent = (ADD)arg2;
-            if (!exponent.isConstant()) {
+    public Object power(Object base, Object exponent) throws ParseException {
+        if (base instanceof ADD && exponent instanceof ADD) {
+            if (!((ADD) exponent).isConstant()) {
                 throw new ParseException("Invalid parameter type. Exponent must be constant.");
             }
 
-            double exponentValue = 0;
-            try {
-                exponentValue = exponent.eval(new String[]{});
-            } catch (UnrecognizedVariableException e) {
-                // Unreachable
-            }
-
-            return nTimes(base, Math.round(exponentValue));
+            return nTimes((ADD) base, Math.round((double) getExponentDoubleValue((ADD) exponent)));
         }
         throw new ParseException("Invalid parameter type");
     }
+
+	private double getExponentDoubleValue(ADD exponent) {
+		double exponentValue = 0;
+		try {
+		    exponentValue = ((ADD) exponent).eval(new String[]{});
+		} catch (UnrecognizedVariableException e) {
+		    // Unreachable
+		}
+		return exponentValue;
+	}
 
     private ADD nTimes(ADD base, long exponentValue) {
         if (exponentValue == 0) {
