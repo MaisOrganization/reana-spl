@@ -12,8 +12,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -143,14 +145,7 @@ public class SPL implements Cloneable{
 			domSeqDiagram.appendChild(domFragments);
 			rootElement.appendChild(domSeqDiagram);
 
-			// Transform the content into an xml representation
-			TransformerFactory transFactory = TransformerFactory.newInstance();
-			Transformer transformer = transFactory.newTransformer();
-			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(answer);
-			StreamResult result_file = new StreamResult(output);
-			transformer.transform(source, result);
-			transformer.transform(source, result_file);
+			transformContentInXmlRepresentation(answer, output, doc);
 
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
@@ -158,6 +153,17 @@ public class SPL implements Cloneable{
 			e.printStackTrace();
 		}
 		return answer.toString();
+	}
+
+	private void transformContentInXmlRepresentation(StringWriter answer, File output, Document doc)
+			throws TransformerFactoryConfigurationError, TransformerConfigurationException, TransformerException {
+		TransformerFactory transFactory = TransformerFactory.newInstance();
+		Transformer transformer = transFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(answer);
+		StreamResult result_file = new StreamResult(output);
+		transformer.transform(source, result);
+		transformer.transform(source, result_file);
 	}
 
 	public ActivityDiagram createActivityDiagram(String name) {
