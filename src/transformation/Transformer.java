@@ -156,7 +156,7 @@ public class Transformer {
 	 * @param target: the fDTMC node that the message should go to
 	 * @param error: the error state where message transmission failure should be transited to
 	 * @return the $target itself, the point in the fDTMC where the execution of the message will stop at
-	 */
+	 */fragment
 	private State transformMessage(FDTMC fdtmc, Message msg, State source, State target, State error) {
 		BigDecimal a = new BigDecimal("1.0");
 		BigDecimal b = new BigDecimal(Float.toString(msg.getProb()));
@@ -214,15 +214,19 @@ public class Transformer {
 		State opEnd = fdtmc.createState("end" + name);
 
 		// TODO Assuming for now that loop/not-loop probability is 50/50.
+		probalityLoop(fdtmc, source, target, opStart, opEnd);
+
+		transformLoopOperand (fdtmc, name, operand, opStart, opEnd, error, currentRdgNode);
+		return target;
+	}
+
+	private void probalityLoop(FDTMC fdtmc, State source, State target, State opStart, State opEnd) {
 		String loopProbability = "0.5";
 
 		fdtmc.createTransition(source, target, "", "1 - " + loopProbability); // not entering loop
 		fdtmc.createTransition(source, opStart, "", loopProbability); // entering loop
 		fdtmc.createTransition(opEnd, opStart, "", loopProbability); // restarting loop
 		fdtmc.createTransition(opEnd, target, "", "1 - " + loopProbability); // leaving loop
-
-		transformLoopOperand (fdtmc, name, operand, opStart, opEnd, error, currentRdgNode);
-		return target;
 	}
 
 	/**
@@ -328,36 +332,40 @@ public class Transformer {
 	 */
 	private State transformParallelFragment(FDTMC fdtmc, Fragment fragment, State source, State target, State error, RDGNode currentRdgNode) throws InvalidNodeClassException, InvalidNumberOfOperandsException, InvalidNodeType {
 		List<Node> operands = fragment.getNodes();
-		String fragName, opName;
+		
 		int n = operands.size(), opNum;
 		float val = 1/(float)n;
 
-		fragName = !fragment.getName().isEmpty() ? fragment.getName() : "Par" + ++parNum;
+		
 		opNum = 0;
 		for(Node node : operands) {
 			if (!node.getClass().equals(Operand.class)) {
 			    throw new InvalidNodeClassException("A Par Fragment can only have Operand objects as Nodes!");
 			}
 			Operand operand = (Operand)node; // to facilitate the nodes use
-			opName = fragName + "-Op" + ++opNum;
+			final String opName = fragName(fragment) + "-Op" + ++opNum;
 
 			RDGNode fragmentNode = transformOperand(opName, "true", operand);
 			currentRdgNode.addDependency(fragmentNode);
 	        // There is a possibility that we have found an RDG node similar to the
 	        // one we just transformed. In this case, we reuse the older one.
 	        // Thus, the dependency name must be changed accordingly.
-	        opName = fragmentNode.getId();
+			final String oldOpName = fragmentNode.getId();
 
-			State opStart = fdtmc.createState("initial" + opName);
-			State opEnd = fdtmc.createState("end" + opName);
-			State opError = fdtmc.createState("error" + opName);
+			State opStart = fdtmc.createState("initial" + oldOpName);
+			State opEnd = fdtmc.createState("end" + oldOpName);
+			State opError = fdtmc.createState("error" + oldOpName);
 
 			fdtmc.createTransition(source, opStart, "", Float.toString(val)); // entering operand
-			fdtmc.createInterface(opName, opStart, opEnd, opError);
+			fdtmc.createInterface(oldOpName, opStart, opEnd, opError);
 			fdtmc.createTransition(opEnd, target, "", "1.0"); // leaving operand
 
 		}
 		return target;
+	}
+
+	private String fragName(Fragment fragment) {
+		return !fragment.getName().isEmpty() ? fragment.getName() : "Par" + ++parNum;
 	}
 
 	private RDGNode transformOperand (String name, String presenceCondition, Operand operand) throws InvalidNumberOfOperandsException, InvalidNodeClassException, InvalidNodeType {
