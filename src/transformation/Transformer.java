@@ -156,7 +156,7 @@ public class Transformer {
 	 * @param target: the fDTMC node that the message should go to
 	 * @param error: the error state where message transmission failure should be transited to
 	 * @return the $target itself, the point in the fDTMC where the execution of the message will stop at
-	 */fragment
+	 */
 	private State transformMessage(FDTMC fdtmc, Message msg, State source, State target, State error) {
 		BigDecimal a = new BigDecimal("1.0");
 		BigDecimal b = new BigDecimal(Float.toString(msg.getProb()));
